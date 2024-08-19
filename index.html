@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Interactivo</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-search@2.9.9/dist/leaflet-search.min.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <style>
+        /* Colores personalizados */
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --background-color: #f8f9fa;
+            --text-color: #343a40;
+            --light-gray: #f0f0f0;
+            --dark-gray: #6c757d;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: Arial, sans-serif;
+        }
+
+        #map {
+            width: 100%;
+            height: 50vh;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+
+        .form-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group label {
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .form-control[readonly] {
+            background-color: var(--light-gray);
+            border-color: var(--dark-gray);
+        }
+
+        textarea.form-control {
+            resize: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="container">
+        <form id="dataForm" class="form-container">
+            <div class="row">
+                <!-- Sección 1 -->
+                <div class="col-md-6 mb-4">
+                    <h5 class="text-center mb-3">Info. Area Inspeccionar</h5>
+                    <div class="form-group">
+                        <label for="search">Buscar Nombre:</label>
+                        <select id="search" name="search" class="form-control">
+                            <option value="">Seleccione un nombre</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="id">ID:</label>
+                        <input type="text" id="id" name="id" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="padron">Padrón:</label>
+                        <input type="text" id="padron" name="padron" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="nombre">Nombre:</label>
+                        <input type="text" id="nombre" name="nombre" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="dominio">Dominio:</label>
+                        <input type="text" id="dominio" name="dominio" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="propietario">Propietario:</label>
+                        <input type="text" id="propietario" name="propietario" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="estadoObra">Estado Obra:</label>
+                        <input type="text" id="estadoObra" name="estadoObra" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="vivInf">Viviendas Inf:</label>
+                        <input type="text" id="vivInf" name="vivInf" class="form-control" readonly>
+                    </div>
+                    
+                </div>
+
+                <!-- Sección 2 -->
+                <div class="col-md-6 mb-4">
+                    <h5 class="text-center mb-3">Infor. del Relevamiento</h5>
+
+                    <div class="form-group">
+                        <label for="Nom_Inspector">Nombre/Apellido:</label>
+                        <input type="text" id="Nom_Inspector" name="Nom_Inspector" class="form-control" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fecha2">Fecha:</label>
+                        <input type="date" id="fecha2" name="fecha2" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="latitud">Latitud:</label>
+                        <input type="text" id="latitud" name="latitud" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="longitud">Longitud:</label>
+                        <input type="text" id="longitud" name="longitud" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="pregunta1">Pregunta 1:</label>
+                        <select id="pregunta1" name="pregunta1" class="form-control">
+                            <option value="">Seleccione una opción</option>
+                            <option value="opcion1">Opción 1</option>
+                            <option value="opcion2">Opción 2</option>
+                            <option value="opcion3">Opción 3</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pregunta2">Pregunta 2:</label>
+                        <select id="pregunta2" name="pregunta2" class="form-control">
+                            <option value="">Seleccione una opción</option>
+                            <option value="opcion1">Opción 1</option>
+                            <option value="opcion2">Opción 2</option>
+                            <option value="opcion3">Opción 3</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pregunta3">Pregunta 3:</label>
+                        <select id="pregunta3" name="pregunta3" class="form-control">
+                            <option value="">Seleccione una opción</option>
+                            <option value="opcion1">Opción 1</option>
+                            <option value="opcion2">Opción 2</option>
+                            <option value="opcion3">Opción 3</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="observacion">Observación:</label>
+                        <textarea id="observacion" name="observacion" rows="4" class="form-control"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Enviar</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <script src="https://unpkg.com/leaflet-search@2.9.9/dist/leaflet-search.min.js"></script>
+    <script src="data/PROYECTOSINSPECCIONcopiar_2.js"></script>
+    <script>
+        var map = L.map('map').setView([-26.772, -65.198], 13);
+
+        var googleSat = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            attribution: 'Google'
+        }).addTo(map);
+
+        var layer_PROYECTOSINSPECCIONcopiar_2 = L.geoJson(json_PROYECTOSINSPECCIONcopiar_2, {
+            onEachFeature: function (feature, layer) {
+                layer.on('click', function (e) {
+                    updateFormFields(feature.properties);
+                });
+            }
+        }).addTo(map);
+
+        function updateFormFields(properties) {
+            document.getElementById('nombre').value = properties.NOMBRE || '';
+            document.getElementById('padron').value = properties['PADRÓN'] || '';
+            document.getElementById('dominio').value = properties.DOMINIO || '';
+            document.getElementById('propietario').value = properties.PROPIETARI || '';
+            document.getElementById('estadoObra').value = properties['ESTADO OBR'] || '';
+            document.getElementById('vivInf').value = properties['VIV INF'] || '';
+            document.getElementById('id').value = properties.ID || '';
+        }
+
+        var searchControl = new L.Control.Search({
+            layer: layer_PROYECTOSINSPECCIONcopiar_2,
+            propertyName: 'NOMBRE',
+            initial: false,
+            moveToLocation: function (latlng, title, map) {
+                map.setView(latlng, 17);
+            }
+        });
+
+        searchControl.on('search:locationfound', function(e) {
+            updateFormFields(e.layer.feature.properties);
+        });
+
+        map.addControl(searchControl);
+
+        // Fill dropdown with options from the geoJSON data
+        json_PROYECTOSINSPECCIONcopiar_2.features.forEach(function(feature) {
+            var option = document.createElement("option");
+            option.value = feature.properties.NOMBRE;
+            option.text = feature.properties.NOMBRE;
+            document.getElementById('search').appendChild(option);
+        });
+
+        document.getElementById('search').addEventListener('change', function() {
+            var selectedName = this.value;
+            layer_PROYECTOSINSPECCIONcopiar_2.eachLayer(function(layer) {
+                if (layer.feature.properties.NOMBRE === selectedName) {
+                    map.setView(layer.getBounds().getCenter(), 17);
+                    updateFormFields(layer.feature.properties);
+                }
+            });
+        });
+
+        var marker;
+        map.on('click', function (e) {
+            if (marker) {
+                map.removeLayer(marker);
+            }
+            marker = L.marker(e.latlng).addTo(map);
+            document.getElementById('latitud').value = e.latlng.lat;
+            document.getElementById('longitud').value = e.latlng.lng;
+        });
+
+        // Establecer la fecha actual en los campos de fecha
+        var currentDate = new Date().toISOString().split('T')[0];
+        document.getElementById('fecha2').value = currentDate;
+    </script>
+</body>
+</html>
